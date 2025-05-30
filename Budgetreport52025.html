@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASB Budget Worksheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+        }
+        .container {
+            max-width: 90%; /* Fluid width for responsiveness */
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        input[type="text"], input[type="number"], textarea, input[type="date"] { /* Added input[type="date"] here */
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.25rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem; /* Rounded corners */
+            font-size: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, textarea:focus, input[type="date"]:focus { /* Added input[type="date"] here */
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+        }
+        .total-row td {
+            font-weight: 700;
+            background-color: #e0f2fe;
+        }
+        .net-balance-row td {
+            font-weight: 700;
+            background-color: #bfdbfe;
+            font-size: 1.125rem;
+        }
+        .add-button {
+            background-color: #22c55e;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            margin-top: 1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .add-button:hover {
+            background-color: #16a34a;
+        }
+        .delete-button {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .delete-button:hover {
+            background-color: #dc2626;
+        }
+        .save-button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-top: 2rem;
+            display: block;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .save-button:hover {
+            background-color: #2563eb;
+        }
+        #statusMessage {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #475569;
+        }
+        /* Styling for fillable signature lines */
+        .signature-input {
+            width: 100%;
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid #94a3b8; /* slate-400 */
+            padding-bottom: 0.25rem;
+            font-size: 1rem;
+            color: #334155;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            outline: none;
+        }
+        .signature-input:focus {
+            border-color: #3b82f6; /* blue-500 */
+        }
+        .signature-date-input {
+            width: 100%;
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid #94a3b8; /* slate-400 */
+            padding-bottom: 0.25rem;
+            font-size: 0.875rem; /* Smaller font for date */
+            color: #475569; /* slate-600 */
+            margin-top: 0.25rem;
+            outline: none;
+        }
+        .signature-date-input:focus {
+            border-color: #3b82f6; /* blue-500 */
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+                margin: 1rem auto;
+            }
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+            input[type="text"], input[type="number"], textarea {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Print styles for PDF */
+        @media print {
+            .add-button, .delete-button, .save-button, #statusMessage {
+                display: none !important; /* Hide buttons and status message when printing */
+            }
+            input[type="text"], input[type="number"], textarea, input[type="date"] {
+                border: none !important; /* Remove borders for inputs */
+                padding: 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact; /* Ensure background colors print */
+                print-color-adjust: exact;
+            }
+            .signature-input, .signature-date-input {
+                border-bottom: 1px solid #000 !important; /* Keep signature lines visible */
+            }
+            body {
+                background-color: #fff !important; /* Ensure white background for print */
+            }
+            .container {
+                box-shadow: none !important; /* Remove shadow for print */
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            table, th, td {
+                border-color: #000 !important; /* Ensure table borders are black */
+            }
+            .total-row td, .net-balance-row td {
+                background-color: #f0f0f0 !important; /* Light grey for totals */
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">ASB Budget Worksheet</h1>
+
+        <form id="budgetForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div>
+                    <label for="schoolName" class="block text-sm font-medium text-gray-700">School Name:</label>
+                    <input type="text" id="schoolName" name="schoolName" class="mt-1 block w-full" placeholder="Your School Name Here">
+                </div>
+                <div>
+                    <label for="departmentClub" class="block text-sm font-medium text-gray-700">ASB Department/Club:</label>
+                    <input type="text" id="departmentClub" name="departmentClub" class="mt-1 block w-full" placeholder="Your Department/Club Name Here">
+                </div>
+                <div>
+                    <label for="date" class="block text-sm font-medium text-gray-700">Date:</label>
+                    <input type="date" id="date" name="date" class="mt-1 block w-full" value="<?php echo date('Y-m-d'); ?>">
+                </div>
+                <div>
+                    <label for="preparedBy" class="block text-sm font-medium text-gray-700">Prepared By:</label>
+                    <input type="text" id="preparedBy" name="preparedBy" class="mt-1 block w-full" placeholder="Your Name/Team">
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">I. Budget Summary</h2>
+            <table class="mb-8">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Total Income</td>
+                        <td id="totalIncomeSummary">$0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Total Expenses</td>
+                        <td id="totalExpensesSummary">$0.00</td>
+                    </tr>
+                    <tr class="net-balance-row">
+                        <td>**Net Balance**</td>
+                        <td id="netBalanceSummary">**$0.00**</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2 class="text-2xl font-semibold text-gray-700 mb-4">II. Income Projections</h2>
+            <table class="mb-8">
+                <thead>
+                    <tr>
+                        <th>Income Source</th>
+                        <th>Description</th>
+                        <th>Projected Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="incomeTableBody">
+                    <tr>
+                        <td><input type="text" class="income-source" name="incomeSource[]" value="Bake Sale"></td>
+                        <td><input type="text" class="income-description" name="incomeDescription[]" value="Funds from annual bake sale"></td>
+                        <td><input type="number" class="income-amount" name="incomeAmount[]" value="300" min="0"></td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="income-source" name="incomeSource[]" value="Car Wash"></td>
+                        <td><input type="text" class="income-description" name="incomeDescription[]" value="Funds from spring car wash event"></td>
+                        <td><input type="number" class="income-amount" name="incomeAmount[]" value="400" min="0"></td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="income-source" name="incomeSource[]" value="ASB Allocation"></td>
+                        <td><input type="text" class="income-description" name="incomeDescription[]" value="General funds from ASB"></td>
+                        <td><input type="number" class="income-amount" name="incomeAmount[]" value="700" min="0"></td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="income-source" name="incomeSource[]" value="Donations"></td>
+                        <td><input type="text" class="income-description" name="incomeDescription[]" value="Small donations from parents"></td>
+                        <td><input type="number" class="income-amount" name="incomeAmount[]" value="100" min="0"></td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2" class="text-right">**TOTAL INCOME**</td>
+                        <td id="totalIncome">$0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button type="button" class="add-button" onclick="addIncomeRow()">Add Income Item</button>
+
+            <h2 class="text-2xl font-semibold text-gray-700 my-4">III. Expense Breakdown</h2>
+            <table class="mb-8">
+                <thead>
+                    <tr>
+                        <th>Expense Category</th>
+                        <th>Item/Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Cost</th>
+                        <th>Total Cost</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expenseTableBody">
+                    <tr>
+                        <td><input type="text" class="expense-category" name="expenseCategory[]" value="Supplies"></td>
+                        <td><input type="text" class="expense-description" name="expenseDescription[]" value="Office supplies"></td>
+                        <td><input type="number" class="expense-quantity" name="expenseQuantity[]" value="1" min="1"></td>
+                        <td><input type="number" class="expense-unit-cost" name="expenseUnitCost[]" value="50" min="0"></td>
+                        <td class="expense-total">$50.00</td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="expense-category" name="expenseCategory[]" value="Events"></td>
+                        <td><input type="text" class="expense-description" name="expenseDescription[]" value="Welcome Back Dance"></td>
+                        <td><input type="number" class="expense-quantity" name="expenseQuantity[]" value="1" min="1"></td>
+                        <td><input type="number" class="expense-unit-cost" name="expenseUnitCost[]" value="600" min="0"></td>
+                        <td class="expense-total">$600.00</td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="expense-category" name="expenseCategory[]" value="Events"></td>
+                        <td><input type="text" class="expense-description" name="expenseDescription[]" value="Movie Night"></td>
+                        <td><input type="number" class="expense-quantity" name="expenseQuantity[]" value="1" min="1"></td>
+                        <td><input type="number" class="expense-unit-cost" name="expenseUnitCost[]" value="250" min="0"></td>
+                        <td class="expense-total">$250.00</td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="expense-category" name="expenseCategory[]" value="Travel"></td>
+                        <td><input type="text" class="expense-description" name="expenseDescription[]" value="State Leadership Summit (3 students)"></td>
+                        <td><input type="number" class="expense-quantity" name="expenseQuantity[]" value="3" min="1"></td>
+                        <td><input type="number" class="expense-unit-cost" name="expenseUnitCost[]" value="80" min="0"></td>
+                        <td class="expense-total">$240.00</td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="expense-category" name="expenseCategory[]" value="Miscellaneous"></td>
+                        <td><input type="text" class="expense-description" name="expenseDescription[]" value="Contingency Fund"></td>
+                        <td><input type="number" class="expense-quantity" name="expenseQuantity[]" value="1" min="1"></td>
+                        <td><input type="number" class="expense-unit-cost" name="expenseUnitCost[]" value="40" min="0"></td>
+                        <td class="expense-total">$40.00</td>
+                        <td><button type="button" class="delete-button">Delete</button></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="4" class="text-right">**TOTAL EXPENSES**</td>
+                        <td id="totalExpenses">$0.00</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+            <button type="button" class="add-button" onclick="addExpenseRow()">Add Expense Item</button>
+
+            <h2 class="text-2xl font-semibold text-gray-700 my-4">IV. Justification/Notes</h2>
+            <textarea id="justificationNotes" name="justificationNotes" rows="6" class="mt-1 block w-full p-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Provide any additional context, justification for specific budget items, or notes relevant to your request.">We are requesting a budget of $1,500 to cover our planned activities for the upcoming school year. The Welcome Back Dance is our largest event and requires the most significant portion of the budget. We anticipate strong attendance at our fundraising events (Bake Sale, Car Wash) to meet our income projections. The State Leadership Summit is crucial for developing our student leaders, hence the allocation for travel. The contingency fund is a small buffer for any unforeseen costs.</textarea>
+
+            <button type="button" class="save-button" id="saveButton">Save as PDF</button>
+            <div id="statusMessage" class="mt-4"></div>
+        </form>
+
+        <h2 class="text-2xl font-semibold text-gray-700 my-4">V. Approval Signatures</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+            <div>
+                <p class="font-medium text-gray-700">Prepared By:</p>
+                <input type="text" id="preparedByNameSignature" name="preparedByName" class="signature-input" placeholder="Print Name">
+                <input type="text" name="preparedByTitle" class="signature-input text-sm text-gray-600" placeholder="Your Title">
+                <input type="date" name="preparedByDateSignature" class="signature-date-input">
+            </div>
+            <div>
+                <p class="font-medium text-gray-700">ASB Advisor Approval:</p>
+                <input type="text" name="advisorName" class="signature-input" placeholder="Print Name">
+                <input type="date" name="advisorDate" class="signature-date-input">
+            </div>
+            <div>
+                <p class="font-medium text-gray-700">ASB Treasurer Approval:</p>
+                <input type="text" name="treasurerName" class="signature-input" placeholder="Print Name">
+                <input type="date" name="treasurerDate" class="signature-date-input">
+            </div>
+            <div>
+                <p class="font-medium text-gray-700">Principal/Administrator Approval (if required):</p>
+                <input type="text" name="principalName" class="signature-input" placeholder="Print Name">
+                <input type="date" name="principalDate" class="signature-date-input">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to format currency
+        function formatCurrency(value) {
+            return `$${parseFloat(value).toFixed(2)}`;
+        }
+
+        // Function to calculate totals
+        function calculateTotals() {
+            let totalIncome = 0;
+            document.querySelectorAll('#incomeTableBody .income-amount').forEach(input => {
+                totalIncome += parseFloat(input.value) || 0;
+            });
+            document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
+            document.getElementById('totalIncomeSummary').textContent = formatCurrency(totalIncome);
+
+            let totalExpenses = 0;
+            document.querySelectorAll('#expenseTableBody .expense-total').forEach(span => {
+                totalExpenses += parseFloat(span.textContent.replace('$', '')) || 0;
+            });
+            document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+            document.getElementById('totalExpensesSummary').textContent = formatCurrency(totalExpenses);
+
+            const netBalance = totalIncome - totalExpenses;
+            document.getElementById('netBalanceSummary').textContent = formatCurrency(netBalance);
+            document.getElementById('netBalanceSummary').style.color = netBalance >= 0 ? '#10b981' : '#ef4444'; // Green for positive, red for negative
+        }
+
+        // Function to update individual expense total
+        function updateExpenseTotal(row) {
+            const quantity = parseFloat(row.querySelector('.expense-quantity').value) || 0;
+            const unitCost = parseFloat(row.querySelector('.expense-unit-cost').value) || 0;
+            const total = quantity * unitCost;
+            row.querySelector('.expense-total').textContent = formatCurrency(total);
+            calculateTotals(); // Recalculate all totals after an individual expense changes
+        }
+
+        // Function to add a new income row
+        function addIncomeRow() {
+            const tableBody = document.getElementById('incomeTableBody');
+            const newRow = tableBody.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" class="income-source" name="incomeSource[]" placeholder="Income Source"></td>
+                <td><input type="text" class="income-description" name="incomeDescription[]" placeholder="Description"></td>
+                <td><input type="number" class="income-amount" name="incomeAmount[]" value="0" min="0"></td>
+                <td><button type="button" class="delete-button">Delete</button></td>
+            `;
+            // Add event listener to the new input field
+            newRow.querySelector('.income-amount').addEventListener('input', calculateTotals);
+            newRow.querySelector('.delete-button').addEventListener('click', (event) => deleteRow(event.target));
+            calculateTotals(); // Recalculate totals after adding a new row
+        }
+
+        // Function to add a new expense row
+        function addExpenseRow() {
+            const tableBody = document.getElementById('expenseTableBody');
+            const newRow = tableBody.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" class="expense-category" name="expenseCategory[]" placeholder="Category"></td>
+                <td><input type="text" class="expense-description" name="expenseDescription[]" placeholder="Description"></td>
+                <td><input type="number" class="expense-quantity" name="expenseQuantity[]" value="1" min="1"></td>
+                <td><input type="number" class="expense-unit-cost" name="expenseUnitCost[]" value="0" min="0"></td>
+                <td class="expense-total">$0.00</td>
+                <td><button type="button" class="delete-button">Delete</button></td>
+            `;
+            // Add event listeners to the new input fields
+            const quantityInput = newRow.querySelector('.expense-quantity');
+            const unitCostInput = newRow.querySelector('.expense-unit-cost');
+            quantityInput.addEventListener('input', () => updateExpenseTotal(newRow));
+            unitCostInput.addEventListener('input', () => updateExpenseTotal(newRow));
+            newRow.querySelector('.delete-button').addEventListener('click', (event) => deleteRow(event.target));
+            updateExpenseTotal(newRow); // Calculate initial total for the new row
+        }
+
+        // Function to delete a row
+        function deleteRow(button) {
+            const row = button.closest('tr');
+            row.remove();
+            calculateTotals(); // Recalculate totals after deleting a row
+        }
+
+        // Handle form submission for PDF generation
+        document.getElementById('budgetForm').addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent default form submission
+
+            const statusMessage = document.getElementById('statusMessage');
+            const saveButton = document.getElementById('saveButton');
+
+            statusMessage.textContent = 'Generating PDF...';
+            saveButton.disabled = true; // Disable button during generation
+
+            // Trigger the browser's print dialog
+            window.print();
+
+            // Reset status and button after a short delay (allowing print dialog to appear)
+            setTimeout(() => {
+                statusMessage.textContent = 'PDF generation initiated. Check your browser\'s print dialog.';
+                statusMessage.style.color = '#10b981'; // Green for success
+                saveButton.disabled = false; // Re-enable button
+            }, 1000); // Give a small delay for the print dialog to open
+        });
+
+
+        // Add event listeners to existing input fields and delete buttons on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set today's date for the main date input
+            document.getElementById('date').valueAsDate = new Date();
+
+            // Set today's date for all signature date inputs
+            const today = new Date();
+            const todayISO = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (input.id !== 'date') { // Exclude the main date input if it's already handled
+                    input.value = todayISO;
+                }
+            });
+
+            // Auto-populate Prepared By name to signature section
+            const preparedByInput = document.getElementById('preparedBy');
+            const preparedByNameSignatureInput = document.getElementById('preparedByNameSignature');
+
+            if (preparedByInput && preparedByNameSignatureInput) {
+                // Initial population in case there's a default value
+                preparedByNameSignatureInput.value = preparedByInput.value;
+
+                // Listen for input changes
+                preparedByInput.addEventListener('input', () => {
+                    preparedByNameSignatureInput.value = preparedByInput.value;
+                });
+            }
+
+
+            // Add input listeners for income amounts
+            document.querySelectorAll('#incomeTableBody .income-amount').forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+
+            // Add input listeners for expense quantities and unit costs, and delete buttons
+            document.querySelectorAll('#expenseTableBody tr').forEach(row => {
+                const quantityInput = row.querySelector('.expense-quantity');
+                const unitCostInput = row.querySelector('.expense-unit-cost');
+                if (quantityInput && unitCostInput) {
+                    quantityInput.addEventListener('input', () => updateExpenseTotal(row));
+                    unitCostInput.addEventListener('input', () => updateExpenseTotal(row));
+                    updateExpenseTotal(row); // Initial calculation for existing rows
+                }
+            });
+
+            // Attach delete event listeners to all existing delete buttons
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', (event) => deleteRow(event.target));
+            });
+
+            calculateTotals(); // Initial calculation on page load
+        });
+    </script>
+</body>
+</html>
